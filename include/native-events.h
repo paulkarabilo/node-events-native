@@ -16,7 +16,7 @@ namespace nativeevents {
             static NAN_MODULE_INIT(Initialize);
             ~NativeEvents();
         private:
-            map<string, vector<Nan::Callback> > m_channels;
+            map<string, vector<Nan::Callback*> > m_channels;
             NativeEvents();
             static NAN_METHOD(New);
             static NAN_METHOD(AddListener);
