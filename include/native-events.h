@@ -2,9 +2,13 @@
 #define NODE_NATIVE_EVENTS_H
 
 #include <nan.h>
+#include <vector>
+#include <map>
+#include <string>
 
 using namespace v8;
 using namespace node;
+using namespace std;
 
 namespace nativeevents {
     class NativeEvents : public Nan::ObjectWrap {
@@ -12,6 +16,7 @@ namespace nativeevents {
             static NAN_MODULE_INIT(Initialize);
             ~NativeEvents();
         private:
+            map<string, vector<Nan::Callback> > m_channels;
             NativeEvents();
             static NAN_METHOD(New);
             static NAN_METHOD(AddListener);

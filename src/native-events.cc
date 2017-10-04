@@ -2,9 +2,15 @@
 
 namespace nativeevents {
     NAN_MODULE_INIT(NativeEvents::Initialize) {
-        Local<FunctionTemplate> events = Nan::New<FunctionTemplate>(New);
-        events->InstanceTemplate()->SetInternalFieldCount(1);
-        Nan::Set(target, Nan::New("exports").ToLocalChecked(), Nan::GetFunction(events).ToLocalChecked());
+        Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>(New);
+        ctor->InstanceTemplate()->SetInternalFieldCount(1);
+        Nan::SetPrototypeMethod(ctor, "addListener", AddListener);
+        Nan::SetPrototypeMethod(ctor, "removeListener", RemoveListener);
+        Nan::SetPrototypeMethod(ctor, "removeAllListeners", RemoveAllListeners);
+        Nan::SetPrototypeMethod(ctor, "emit", Emit);
+        Nan::SetPrototypeMethod(ctor, "on", On);
+        Nan::SetPrototypeMethod(ctor, "once", Once);
+        Nan::Set(target, Nan::New("exports").ToLocalChecked(), Nan::GetFunction(ctor).ToLocalChecked());
     }
 
     NAN_METHOD(NativeEvents::New) {
@@ -14,25 +20,34 @@ namespace nativeevents {
     }
 
     NAN_METHOD(NativeEvents::AddListener) {
-
+        if (info.Length() != 2 || !info[0]->IsString() || !info[1]->IsFunction()) {
+            return Nan::ThrowError("Method AddListener expects 2 arguments: event name and callback");
+        }
     }
+
     NAN_METHOD(NativeEvents::RemoveListener) {
 
     }
+
     NAN_METHOD(NativeEvents::RemoveAllListeners) {
 
     }
+
     NAN_METHOD(NativeEvents::Emit) {
 
     }
+
     NAN_METHOD(NativeEvents::On) {
 
     }
+
     NAN_METHOD(NativeEvents::Once) {
-        
+
     }
 
-    NativeEvents::NativeEvents() : Nan::ObjectWrap() { }
+    NativeEvents::NativeEvents() : Nan::ObjectWrap(), m_channels() {
+
+    }
 }
 
 void NativeEventsInit(Handle<Object> exports, Handle<Object> module) {
