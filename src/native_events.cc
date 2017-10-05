@@ -1,6 +1,6 @@
-#include "../include/native-events.h"
+#include "../include/native_events.h"
 
-namespace nativeevents {
+namespace addon {
     NAN_MODULE_INIT(NativeEvents::Initialize) {
         Local<FunctionTemplate> ctor = Nan::New<FunctionTemplate>(New);
         ctor->InstanceTemplate()->SetInternalFieldCount(1);
@@ -11,6 +11,11 @@ namespace nativeevents {
         Nan::SetPrototypeMethod(ctor, "on", On);
         Nan::SetPrototypeMethod(ctor, "once", Once);
         Nan::Set(target, Nan::New("exports").ToLocalChecked(), Nan::GetFunction(ctor).ToLocalChecked());
+    }
+
+
+    NativeEvents::NativeEvents() : Nan::ObjectWrap(), m_channels() {
+        
     }
 
     NAN_METHOD(NativeEvents::New) {
@@ -55,9 +60,14 @@ namespace nativeevents {
 
         String::Utf8Value val(info[0]->ToString());
         string key (*val);
-
+        Local<Value> argv[1];
+        argv[0] = Nan::New<String>("OK").ToLocalChecked();
         if (ne->m_channels.find(key) != ne->m_channels.end()) {
             vector<Nan::Callback*> vec = ne->m_channels[key];
+            for (vector<Nan::Callback*>::iterator it = vec.begin(); it != vec.end(); ++it) {
+                Nan::Callback* cb = *it;
+                cb->Call(1, argv);
+            }
         }
     }
 
@@ -69,13 +79,10 @@ namespace nativeevents {
 
     }
 
-    NativeEvents::NativeEvents() : Nan::ObjectWrap(), m_channels() {
-
-    }
 }
 
 void NativeEventsInit(Handle<Object> exports, Handle<Object> module) {
-    nativeevents::NativeEvents::Initialize(module);
+    addon::NativeEvents::Initialize(module);
 }
 
 

@@ -10,14 +10,14 @@ using namespace v8;
 using namespace node;
 using namespace std;
 
-namespace nativeevents {
+namespace addon {
     class NativeEvents : public Nan::ObjectWrap {
         public:
             static NAN_MODULE_INIT(Initialize);
-            ~NativeEvents();
+            //~NativeEvents();
         private:
-            map<string, vector<Nan::Callback*> > m_channels;
             NativeEvents();
+            map<string, vector<Nan::Callback*> > m_channels;
             static NAN_METHOD(New);
             static NAN_METHOD(AddListener);
             static NAN_METHOD(RemoveListener);
