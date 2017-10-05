@@ -8,7 +8,7 @@ namespace addon {
         Nan::SetPrototypeMethod(ctor, "removeListener", RemoveListener);
         Nan::SetPrototypeMethod(ctor, "removeAllListeners", RemoveAllListeners);
         Nan::SetPrototypeMethod(ctor, "emit", Emit);
-        Nan::SetPrototypeMethod(ctor, "on", On);
+        Nan::SetPrototypeMethod(ctor, "on", AddListener);
         Nan::SetPrototypeMethod(ctor, "once", Once);
         Nan::Set(target, Nan::New("exports").ToLocalChecked(), Nan::GetFunction(ctor).ToLocalChecked());
     }
@@ -26,8 +26,9 @@ namespace addon {
 
     NAN_METHOD(NativeEvents::AddListener) {
         if (info.Length() != 2 || !info[0]->IsString() || !info[1]->IsFunction()) {
-            return Nan::ThrowError("Method addListener expects 2 arguments: event name and callback");
+            return Nan::ThrowError("Method on/addListener expects 2 arguments: event name and callback");
         }
+
         NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());
 
         String::Utf8Value val(info[0]->ToString());
@@ -60,19 +61,19 @@ namespace addon {
 
         String::Utf8Value val(info[0]->ToString());
         string key (*val);
-        Local<Value> argv[1];
-        argv[0] = Nan::New<String>("OK").ToLocalChecked();
+
+        int l = info.Length() - 1;
+        Local<Value> argv[l];
+        for (int i = 1; i < info.Length(); i++) {
+            argv[i - 1] = info[i];
+        }
         if (ne->m_channels.find(key) != ne->m_channels.end()) {
             vector<Nan::Callback*> vec = ne->m_channels[key];
             for (vector<Nan::Callback*>::iterator it = vec.begin(); it != vec.end(); ++it) {
                 Nan::Callback* cb = *it;
-                cb->Call(1, argv);
+                cb->Call(l, argv);
             }
         }
-    }
-
-    NAN_METHOD(NativeEvents::On) {
-
     }
 
     NAN_METHOD(NativeEvents::Once) {
