@@ -46,11 +46,17 @@ namespace addon {
     }
 
     NAN_METHOD(NativeEvents::RemoveListener) {
+        if (info.Length() != 2 || !info[0]->IsString() || !info[1]->IsFunction()) {
+            return Nan::ThrowError("Method removeListener expects 2 arguments: event name and callback");
+        }
+        String::Utf8Value val(info[0]->ToString());
+        string key (*val);
 
+        
     }
 
     NAN_METHOD(NativeEvents::RemoveAllListeners) {
-
+        
     }
 
     NAN_METHOD(NativeEvents::Emit) {
