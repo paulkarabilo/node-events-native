@@ -52,7 +52,21 @@ namespace addon {
         String::Utf8Value val(info[0]->ToString());
         string key (*val);
 
-        
+        NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());
+
+        Local<Function> listener = Local<Function>::Cast(info[1]);
+        map<string, vector<Nan::Callback*> >::iterator map_it = ne->m_channels.find(key);
+        if (map_it != ne->m_channels.end()) {
+            for (vector<Nan::Callback*>::iterator it = (*map_it).second.begin();
+                    it != (*map_it).second.end();) {
+                Nan::Callback* cb = *it;
+                if (cb->GetFunction() == listener) {
+                    it = (*map_it).second.erase(it);
+                } else {
+                    ++it;
+                }
+            }
+        }
     }
 
     NAN_METHOD(NativeEvents::RemoveAllListeners) {
