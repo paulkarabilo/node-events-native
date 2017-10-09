@@ -61,6 +61,7 @@ namespace addon {
                     it != (*map_it).second.end();) {
                 Nan::Callback* cb = *it;
                 if (cb->GetFunction() == listener) {
+                    delete cb;
                     it = (*map_it).second.erase(it);
                 } else {
                     ++it;
