@@ -18,6 +18,7 @@ namespace addon {
         private:
             NativeEvents();
             map<string, vector<Nan::Callback*> > m_channels;
+            map<string, vector<Nan::Callback*> > m_once_channels;
             static NAN_METHOD(New);
             static NAN_METHOD(AddListener);
             static NAN_METHOD(RemoveListener);

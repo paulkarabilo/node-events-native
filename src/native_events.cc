@@ -14,7 +14,7 @@ namespace addon {
     }
 
 
-    NativeEvents::NativeEvents() : Nan::ObjectWrap(), m_channels() {
+    NativeEvents::NativeEvents() : Nan::ObjectWrap(), m_channels(), m_once_channels() {
         
     }
 
@@ -88,17 +88,44 @@ namespace addon {
         for (int i = 1; i < info.Length(); i++) {
             argv[i - 1] = info[i];
         }
-        if (ne->m_channels.find(key) != ne->m_channels.end()) {
-            vector<Nan::Callback*> vec = ne->m_channels[key];
+        map<string, vector<Nan::Callback*> >::iterator map_it = ne->m_channels.find(key);
+        if (map_it != ne->m_channels.end()) {
+            vector<Nan::Callback*> vec = (*map_it).second;
             for (vector<Nan::Callback*>::iterator it = vec.begin(); it != vec.end(); ++it) {
                 Nan::Callback* cb = *it;
                 cb->Call(l, argv);
             }
         }
+        map_it = ne->m_once_channels.find(key);
+        if (map_it != ne->m_once_channels.end()) {
+            for (vector<Nan::Callback*>::iterator it = (*map_it).second.begin(); it != (*map_it).second.end();) {
+                Nan::Callback* cb = *it;
+                cb->Call(l, argv);
+                delete cb;
+                it = (*map_it).second.erase(it);
+            }
+        }
     }
 
     NAN_METHOD(NativeEvents::Once) {
+        if (info.Length() != 2 || !info[0]->IsString() || !info[1]->IsFunction()) {
+            return Nan::ThrowError("Method once expects 2 arguments: event name and callback");
+        }
 
+        NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());
+
+        String::Utf8Value val(info[0]->ToString());
+        string key (*val);
+
+        Nan::Callback *cb = new Nan::Callback(Local<Function>::Cast(info[1]));
+
+        if (ne->m_once_channels.find(key) == ne->m_once_channels.end()) {
+            vector<Nan::Callback*> vec;
+            vec.push_back(cb);
+            ne->m_once_channels[key] = vec;
+        } else {
+            ne->m_once_channels[key].push_back(cb);
+        }
     }
 
 }
