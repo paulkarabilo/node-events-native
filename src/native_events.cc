@@ -13,7 +13,6 @@ namespace addon {
         Nan::Set(target, Nan::New("exports").ToLocalChecked(), Nan::GetFunction(ctor).ToLocalChecked());
     }
 
-
     NativeEvents::NativeEvents() : Nan::ObjectWrap(), m_channels(), m_once_channels() {
         
     }
