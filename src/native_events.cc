@@ -88,13 +88,6 @@ namespace addon {
             argv[i - 1] = info[i];
         }
         map<string, vector<Nan::Callback*> >::iterator map_it = ne->m_channels.find(key);
-        if (map_it != ne->m_channels.end()) {
-            vector<Nan::Callback*> vec = (*map_it).second;
-            for (vector<Nan::Callback*>::iterator it = vec.begin(); it != vec.end(); ++it) {
-                Nan::Callback* cb = *it;
-                cb->Call(l, argv);
-            }
-        }
         map_it = ne->m_once_channels.find(key);
         if (map_it != ne->m_once_channels.end()) {
             for (vector<Nan::Callback*>::iterator it = (*map_it).second.begin(); it != (*map_it).second.end();) {
@@ -102,6 +95,14 @@ namespace addon {
                 cb->Call(l, argv);
                 delete cb;
                 it = (*map_it).second.erase(it);
+            }
+        }
+        map_it = ne->m_channels.find(key);
+        if (map_it != ne->m_channels.end()) {
+            vector<Nan::Callback*> vec = (*map_it).second;
+            for (vector<Nan::Callback*>::iterator it = vec.begin(); it != vec.end(); ++it) {
+                Nan::Callback* cb = *it;
+                cb->Call(l, argv);
             }
         }
     }
@@ -117,7 +118,7 @@ namespace addon {
         string key (*val);
 
         Nan::Callback *cb = new Nan::Callback(Local<Function>::Cast(info[1]));
-
+        
         if (ne->m_once_channels.find(key) == ne->m_once_channels.end()) {
             vector<Nan::Callback*> vec;
             vec.push_back(cb);
