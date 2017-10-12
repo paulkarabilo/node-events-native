@@ -6,7 +6,7 @@ namespace addon {
             int l = strlen(_name);
             name = new char[l + 1];
             strcpy(name, _name);
-            name[l + 1] = '\0';
+            name[l] = '\0';
         }
     }
 
@@ -42,7 +42,7 @@ namespace addon {
         }
     }
 
-    void Channel::Exec(int n, Local<Value> args[]) {
+    void Channel::Exec(int n, Local<Value>* args) {
         CallbackNode* h = head;
         CallbackNode* prev = h;
         while (h != NULL) {

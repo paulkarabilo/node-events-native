@@ -45,7 +45,7 @@ namespace addon {
         return NULL;
     }
 
-    void Channels::Exec(char* name, int n, Local<Value> args[]) {
+    void Channels::Exec(char* name, int n, Local<Value>* args) {
         Channel* c = Get(name);
         if (c != NULL) {
             c->Exec(n, args);

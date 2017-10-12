@@ -14,7 +14,7 @@ namespace addon {
         void Add(char* name, Nan::Callback* cb, bool once);
         void Remove(char* name, Nan::Callback* cb);
         Channel* Get(char* name);
-        void Exec(char* name, int n, Local<Value> args[]);
+        void Exec(char* name, int n, Local<Value>* args);
         void Clear();
 
     private:

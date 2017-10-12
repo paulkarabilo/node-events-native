@@ -29,7 +29,7 @@ namespace addon {
         }
 
         NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());
-        char* key = *(Nan::Utf8String)(info[(0)]);
+        char* key = *(Nan::Utf8String)(info[0]);
         Nan::Callback *cb = new Nan::Callback(Local<Function>::Cast(info[1]));
         ne->channels->Add(key, cb, false);
     }
@@ -39,7 +39,7 @@ namespace addon {
             return Nan::ThrowError("Method removeListener expects 2 arguments: event name and callback");
         }
         
-        char* key = *(Nan::Utf8String)(info[(0)]);
+        char* key = *(Nan::Utf8String)(info[0]);
         NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());
         Nan::Callback *cb = new Nan::Callback(Local<Function>::Cast(info[1]));
         ne->channels->Remove(key, cb);
@@ -55,7 +55,7 @@ namespace addon {
             return Nan::ThrowError("Method emit expects at least 1 argument: event name");
         }
         NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());
-        char* key = *(Nan::Utf8String)(info[(0)]);
+        char* key = *(Nan::Utf8String)(info[0]);
 
         int l = info.Length() - 1;
         Local<Value> argv[l];
@@ -71,7 +71,7 @@ namespace addon {
         }
 
         NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());
-        char* key = *(Nan::Utf8String)(info[(0)]);
+        char* key = *(Nan::Utf8String)(info[0]);
         Nan::Callback *cb = new Nan::Callback(Local<Function>::Cast(info[1]));
         ne->channels->Add(key, cb, true);
     }
