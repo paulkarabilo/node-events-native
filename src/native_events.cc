@@ -13,7 +13,7 @@ namespace addon {
         Nan::Set(target, Nan::New("exports").ToLocalChecked(), Nan::GetFunction(ctor).ToLocalChecked());
     }
 
-    NativeEvents::NativeEvents() : Nan::ObjectWrap(), m_channels(), m_once_channels() {
+    NativeEvents::NativeEvents() : Nan::ObjectWrap(), m_channels() {
         
     }
 
@@ -30,43 +30,24 @@ namespace addon {
 
         NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());
 
-        String::Utf8Value val(info[0]->ToString());
-        string key (*val);
+        char* key = *(Nan::Utf8String)(info[(0)]);
 
         Nan::Callback *cb = new Nan::Callback(Local<Function>::Cast(info[1]));
 
-        if (ne->m_channels.find(key) == ne->m_channels.end()) {
-            vector<Nan::Callback*> vec;
-            vec.push_back(cb);
-            ne->m_channels[key] = vec;
-        } else {
-            ne->m_channels[key].push_back(cb);
-        }
+        ne->m_channels->Add(key, cb, false);
+
     }
 
     NAN_METHOD(NativeEvents::RemoveListener) {
         if (info.Length() != 2 || !info[0]->IsString() || !info[1]->IsFunction()) {
             return Nan::ThrowError("Method removeListener expects 2 arguments: event name and callback");
         }
-        String::Utf8Value val(info[0]->ToString());
-        string key (*val);
+        
+        char* key = *(Nan::Utf8String)(info[(0)]);
 
         NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());
-
-        Local<Function> listener = Local<Function>::Cast(info[1]);
-        map<string, vector<Nan::Callback*> >::iterator map_it = ne->m_channels.find(key);
-        if (map_it != ne->m_channels.end()) {
-            for (vector<Nan::Callback*>::iterator it = (*map_it).second.begin();
-                    it != (*map_it).second.end();) {
-                Nan::Callback* cb = *it;
-                if (cb->GetFunction() == listener) {
-                    delete cb;
-                    it = (*map_it).second.erase(it);
-                } else {
-                    ++it;
-                }
-            }
-        }
+        Nan::Callback *cb = new Nan::Callback(Local<Function>::Cast(info[1]));
+        ne->m_channels->Remove(key, cb);
     }
 
     NAN_METHOD(NativeEvents::RemoveAllListeners) {
@@ -78,34 +59,14 @@ namespace addon {
             return Nan::ThrowError("Method emit expects at least 1 argument: event name");
         }
         NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());
-
-        String::Utf8Value val(info[0]->ToString());
-        string key (*val);
+        char* key = *(Nan::Utf8String)(info[(0)]);
 
         int l = info.Length() - 1;
         Local<Value> argv[l];
         for (int i = 1; i < info.Length(); i++) {
             argv[i - 1] = info[i];
         }
-        map<string, vector<Nan::Callback*> >::iterator map_it = ne->m_channels.find(key);
-        map_it = ne->m_once_channels.find(key);
-        if (map_it != ne->m_once_channels.end()) {
-            vector<Nan::Callback*>::iterator it = (*map_it).second.begin();
-            while (it != (*map_it).second.end()) {
-                Nan::Callback* cb = *it;
-                cb->Call(l, argv);
-                ++it;
-            }
-            map_it = ne->m_once_channels.erase(map_it);
-        }
-        map_it = ne->m_channels.find(key);
-        if (map_it != ne->m_channels.end()) {
-            vector<Nan::Callback*> vec = (*map_it).second;
-            for (vector<Nan::Callback*>::iterator it = vec.begin(); it != vec.end(); ++it) {
-                Nan::Callback* cb = *it;
-                cb->Call(l, argv);
-            }
-        }
+        ne->m_channels->Exec(key, l, argv);
     }
 
     NAN_METHOD(NativeEvents::Once) {
@@ -115,19 +76,11 @@ namespace addon {
 
         NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());
 
-        String::Utf8Value val(info[0]->ToString());
-        string key (*val);
-
-        Nan::Callback *cb = new Nan::Callback(Local<Function>::Cast(info[1]));
+        char* key = *(Nan::Utf8String)(info[(0)]);
         
-        if (ne->m_once_channels.find(key) == ne->m_once_channels.end()) {
-            vector<Nan::Callback*> vec;
-            vec.push_back(cb);
-            ne->m_once_channels[key] = vec;
-        } else {
-            ne->m_once_channels[key].push_back(cb);
-        }
-    }
+        Nan::Callback *cb = new Nan::Callback(Local<Function>::Cast(info[1]));
+
+        ne->m_channels->Add(key, cb, true);
 
 }
 

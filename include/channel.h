@@ -1,5 +1,5 @@
 #include <nan.h>
-
+using namespace v8;
 
 
 namespace addon {
@@ -7,20 +7,20 @@ namespace addon {
     public:
         Channel(char* _name);
         ~Channel();
-        void Add(Nan::Callback* cb, boolean once);
+        void Add(Nan::Callback* cb, bool once);
         void Remove(Nan::Callback* cb);
         void Clear();
-        void Exec(int l, Local<Value>[] args);
+        void Exec(int l, Local<Value> args[]);
         char * GetName();
     private:
         class CallbackNode {
             public:
                 Nan::Callback* cb;
-                boolean once;
+                bool once;
                 CallbackNode* next;
         };
     private:
         char* name;
         CallbackNode* head;
-    }
+    };
 }
