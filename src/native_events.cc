@@ -90,12 +90,13 @@ namespace addon {
         map<string, vector<Nan::Callback*> >::iterator map_it = ne->m_channels.find(key);
         map_it = ne->m_once_channels.find(key);
         if (map_it != ne->m_once_channels.end()) {
-            for (vector<Nan::Callback*>::iterator it = (*map_it).second.begin(); it != (*map_it).second.end();) {
+            vector<Nan::Callback*>::iterator it = (*map_it).second.begin();
+            while (it != (*map_it).second.end()) {
                 Nan::Callback* cb = *it;
                 cb->Call(l, argv);
-                delete cb;
-                it = (*map_it).second.erase(it);
+                ++it;
             }
+            map_it = ne->m_once_channels.erase(map_it);
         }
         map_it = ne->m_channels.find(key);
         if (map_it != ne->m_channels.end()) {
