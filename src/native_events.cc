@@ -13,8 +13,8 @@ namespace addon {
         Nan::Set(target, Nan::New("exports").ToLocalChecked(), Nan::GetFunction(ctor).ToLocalChecked());
     }
 
-    NativeEvents::NativeEvents() : Nan::ObjectWrap(), m_channels() {
-        
+    NativeEvents::NativeEvents() : Nan::ObjectWrap() {
+        channels = new Channels();
     }
 
     NAN_METHOD(NativeEvents::New) {
@@ -29,13 +29,9 @@ namespace addon {
         }
 
         NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());
-
         char* key = *(Nan::Utf8String)(info[(0)]);
-
         Nan::Callback *cb = new Nan::Callback(Local<Function>::Cast(info[1]));
-
-        ne->m_channels->Add(key, cb, false);
-
+        ne->channels->Add(key, cb, false);
     }
 
     NAN_METHOD(NativeEvents::RemoveListener) {
@@ -44,10 +40,10 @@ namespace addon {
         }
         
         char* key = *(Nan::Utf8String)(info[(0)]);
-
         NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());
         Nan::Callback *cb = new Nan::Callback(Local<Function>::Cast(info[1]));
-        ne->m_channels->Remove(key, cb);
+        ne->channels->Remove(key, cb);
+        delete cb;
     }
 
     NAN_METHOD(NativeEvents::RemoveAllListeners) {
@@ -66,7 +62,7 @@ namespace addon {
         for (int i = 1; i < info.Length(); i++) {
             argv[i - 1] = info[i];
         }
-        ne->m_channels->Exec(key, l, argv);
+        ne->channels->Exec(key, l, argv);
     }
 
     NAN_METHOD(NativeEvents::Once) {
@@ -75,13 +71,10 @@ namespace addon {
         }
 
         NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());
-
         char* key = *(Nan::Utf8String)(info[(0)]);
-        
         Nan::Callback *cb = new Nan::Callback(Local<Function>::Cast(info[1]));
-
-        ne->m_channels->Add(key, cb, true);
-
+        ne->channels->Add(key, cb, true);
+    }
 }
 
 void NativeEventsInit(Handle<Object> exports, Handle<Object> module) {

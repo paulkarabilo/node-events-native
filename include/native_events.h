@@ -18,7 +18,7 @@ namespace addon {
             //~NativeEvents();
         private:
             NativeEvents();
-            Channels* m_channels;
+            Channels* channels;
             static NAN_METHOD(New);
             static NAN_METHOD(AddListener);
             static NAN_METHOD(RemoveListener);

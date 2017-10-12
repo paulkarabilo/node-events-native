@@ -1,3 +1,6 @@
+#ifndef NODE_NATIVE_EVENTS_CHANNEL_H
+#define NODE_NATIVE_EVENTS_CHANNEL_H
+
 #include <nan.h>
 using namespace v8;
 
@@ -24,3 +27,5 @@ namespace addon {
         CallbackNode* head;
     };
 }
+
+#endif

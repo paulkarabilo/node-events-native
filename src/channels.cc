@@ -3,7 +3,7 @@
 namespace addon {
     Channels::Channels() {
         channels = new ChannelBucket*[CHANNELS_SIZE];
-        memset(channels, NULL, sizeof(*channels) * CHANNELS_SIZE);
+        memset(channels, 0, sizeof(*channels) * CHANNELS_SIZE);
     }
 
     Channels::~Channels() {
@@ -15,7 +15,7 @@ namespace addon {
         if (c == NULL) {
             c = new Channel(name);
             c->Add(cb, once);
-            ChannelBucket* b = new ChannelBucket
+            ChannelBucket* b = new ChannelBucket;
             b->channel = c;
             int hash = Hash(name);
             b->next = channels[hash];
@@ -28,7 +28,7 @@ namespace addon {
     void Channels::Remove(char* name, Nan::Callback* cb) {
         Channel* c = Get(name);
         if (c != NULL) {
-            c->Remove(name, cb);
+            c->Remove(cb);
         }
     }
 
@@ -45,7 +45,7 @@ namespace addon {
         return NULL;
     }
 
-    void Channels::Exec(char* name, int n, Local<Value>[] args) {
+    void Channels::Exec(char* name, int n, Local<Value> args[]) {
         Channel* c = Get(name);
         if (c != NULL) {
             c->Exec(n, args);
@@ -56,7 +56,7 @@ namespace addon {
         unsigned long hash = 5381;
         int c;
     
-        while (c = *s++)
+        while ((c = *s++))
             hash = ((hash << 5) + hash) + c;
     
         return hash % CHANNELS_SIZE;

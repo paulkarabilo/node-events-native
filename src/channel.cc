@@ -42,7 +42,7 @@ namespace addon {
         }
     }
 
-    void Channel::Exec(int n, Local<Value>[] args) {
+    void Channel::Exec(int n, Local<Value> args[]) {
         CallbackNode* h = head;
         CallbackNode* prev = h;
         while (h != NULL) {
@@ -54,7 +54,7 @@ namespace addon {
                 h = prev->next;
             } else {
                 prev = h;
-                h = h->next
+                h = h->next;
             }
         }
     }
