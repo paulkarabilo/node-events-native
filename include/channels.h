@@ -1,5 +1,6 @@
 #ifndef NODE_NATIVE_EVENTS_CHANNELS_H
 #define NODE_NATIVE_EVENTS_CHANNELS_H
+
 #include <nan.h>
 #include "channel.h"
 

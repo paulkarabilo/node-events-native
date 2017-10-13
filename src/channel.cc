@@ -17,10 +17,14 @@ namespace addon {
 
     void Channel::Add(Nan::Callback* cb, bool once) {
         CallbackNode* n = new CallbackNode();
-        n->next = head;
         n->cb = cb;
         n->once = once;
-        head = n;
+        if (head == NULL) {
+            head = tail = n;
+        } else {
+            tail->next = n;
+            tail = n;
+        }
     }
 
     bool Channel::IsEmpty () {
@@ -30,6 +34,9 @@ namespace addon {
     void Channel::Remove(Nan::Callback* cb) {
         CallbackNode* h = head;
         if (head->cb == cb) {
+            if (head == tail) {
+                tail = NULL;
+            }
             head = head->next;
             delete h->cb;
             delete h;
@@ -37,6 +44,9 @@ namespace addon {
             while (h->next != NULL) {
                 if (h->next->cb == cb) {
                     CallbackNode* hh = h->next;
+                    if (hh == tail) {
+                        tail = h;
+                    }
                     h->next = h->next->next;
                     delete hh->cb;
                     delete hh;
@@ -55,6 +65,9 @@ namespace addon {
                 prev->next = h->next;
                 if (h == head) {
                     head = h->next;
+                }
+                if (h == tail) {
+                    tail = prev;
                 }
                 delete h->cb;
                 delete h;

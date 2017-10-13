@@ -26,6 +26,7 @@ namespace addon {
     private:
         char* name;
         CallbackNode* head;
+        CallbackNode* tail;
     };
 }
 
