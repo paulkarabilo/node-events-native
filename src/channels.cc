@@ -46,9 +46,27 @@ namespace addon {
     }
 
     void Channels::Exec(char* name, int n, Local<Value>* args) {
-        Channel* c = Get(name);
-        if (c != NULL) {
-            c->Exec(n, args);
+        int hash = Hash(name);
+        ChannelBucket* bucket = channels[hash];
+        ChannelBucket* prev = bucket;
+        while (bucket != NULL) {
+            Channel* chan = bucket->channel;
+            if (strcmp(chan->GetName(), name) == 0) {
+                if (chan->Exec(n, args)) {
+                    prev->next = bucket->next;
+                    if (bucket == channels[hash]) {
+                        channels[hash] = bucket->next;
+                    }
+                    delete bucket->channel;
+                    delete bucket;
+                    bucket = prev->next;
+                } else {
+                    prev = bucket;
+                    bucket = bucket->next;
+                }
+            } else {
+                bucket = bucket->next;
+            }
         }
     }
 

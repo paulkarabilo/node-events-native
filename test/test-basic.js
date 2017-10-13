@@ -8,7 +8,7 @@ describe("Basics", function () {
         events.should.exist;
     });
 
-    it("registers simple litener", function (done) {
+    it("registers simple listener", function (done) {
         var events = new Events();
         events.addListener("test", function (a, b) {
             a.should.equal(1);

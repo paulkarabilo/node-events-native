@@ -13,8 +13,9 @@ namespace addon {
         void Add(Nan::Callback* cb, bool once);
         void Remove(Nan::Callback* cb);
         void Clear();
-        void Exec(int l, Local<Value>* args);
+        bool Exec(int l, Local<Value>* args);
         char* GetName();
+        bool IsEmpty();
     private:
         class CallbackNode {
             public:
