@@ -36,5 +36,13 @@ describe("Basic Adding Listeners", function () {
         });
         events.addListener("test", listener)
     });
+
+    it("should trigger simple listener", function () {
+        var listener = sinon.spy();
+        var events = new Events();
+        events.addListener("test", listener)
+        events.emit("test", "a", "b");
+        listener.should.have.been.calledWith("a", "b");
+    })
 });
 
