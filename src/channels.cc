@@ -7,7 +7,7 @@ namespace addon {
     }
 
     Channels::~Channels() {
-
+        RemoveAll();
     }
 
     void Channels::Add(char* name, Nan::Callback* cb, bool once) {
@@ -29,6 +29,38 @@ namespace addon {
         Channel* c = Get(name);
         if (c != NULL) {
             c->Remove(cb);
+        }
+    }
+
+    void Channels::RemoveAll(char* name) {
+        int hash = Hash(name);
+        ChannelBucket* bucket = channels[hash];
+        ChannelBucket* prev = bucket;
+        while (bucket != NULL) {
+            Channel* chan = bucket->channel;
+            if (strcmp(chan->GetName(), name) == 0) {
+                prev->next = bucket->next;
+                if (bucket == channels[hash]) {
+                    channels[hash] = bucket->next;
+                }
+                delete bucket->channel;
+                delete bucket;
+                bucket = prev->next;
+            } else {
+                bucket = bucket->next;
+            }
+        }
+    }
+
+    void Channels::RemoveAll() {
+        for (int i = 0; i < CHANNELS_SIZE; i++) {
+            ChannelBucket* bucket = channels[i];
+            while (bucket != NULL) {
+                delete bucket->channel;
+                delete bucket;
+                bucket = bucket->next;
+            }
+            channels[i] = NULL;
         }
     }
 

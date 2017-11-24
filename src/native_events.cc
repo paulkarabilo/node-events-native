@@ -47,7 +47,16 @@ namespace addon {
     }
 
     NAN_METHOD(NativeEvents::RemoveAllListeners) {
-        
+        if (info.Length() == 1 && info[0]->IsString()) {
+            char* key = *(Nan::Utf8String)(info[0]);
+            NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());
+            ne->channels->RemoveAll(key);
+        } else if (info.Length() == 0) {
+            NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());
+            ne->channels->RemoveAll();
+        } else {
+            return Nan::ThrowError("Method removeAllListeners expects at least 1 argument: event name");
+        }
     }
 
     NAN_METHOD(NativeEvents::Emit) {
