@@ -32,6 +32,11 @@ namespace addon {
         char* key = *(Nan::Utf8String)(info[0]);
         Nan::Callback *cb = new Nan::Callback(Local<Function>::Cast(info[1]));
         ne->channels->Add(key, cb, false);
+        Local<Value> argv[2];
+        argv[0] = info[0];
+        argv[1] = info[1];
+        char newKey[12] = "newListener";
+        ne->channels->Exec(newKey, 2, argv);
     }
 
     NAN_METHOD(NativeEvents::RemoveListener) {
