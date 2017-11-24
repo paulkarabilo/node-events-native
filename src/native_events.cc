@@ -10,6 +10,7 @@ namespace addon {
         Nan::SetPrototypeMethod(ctor, "emit", Emit);
         Nan::SetPrototypeMethod(ctor, "on", AddListener);
         Nan::SetPrototypeMethod(ctor, "once", Once);
+        Nan::SetPrototypeMethod(ctor, "listeners", GetListeners);
         Nan::Set(target, Nan::New("exports").ToLocalChecked(), Nan::GetFunction(ctor).ToLocalChecked());
     }
 
@@ -28,15 +29,17 @@ namespace addon {
             return Nan::ThrowError("Method on/addListener expects 2 arguments: event name and callback");
         }
 
-        NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());
-        char* key = *(Nan::Utf8String)(info[0]);
-        Nan::Callback *cb = new Nan::Callback(Local<Function>::Cast(info[1]));
-        ne->channels->Add(key, cb, false);
+        NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());       
+        
         Local<Value> argv[2];
         argv[0] = info[0];
         argv[1] = info[1];
         char newKey[12] = "newListener";
         ne->channels->Exec(newKey, 2, argv);
+
+        char* key = *(Nan::Utf8String)(info[0]);
+        Nan::Callback *cb = new Nan::Callback(Local<Function>::Cast(info[1]));
+        ne->channels->Add(key, cb, false);
     }
 
     NAN_METHOD(NativeEvents::RemoveListener) {
@@ -64,6 +67,22 @@ namespace addon {
         }
     }
 
+    NAN_METHOD(NativeEvents::GetListeners) {
+        if (info.Length() == 1 && info[0]->IsString()) {
+            char* key = *(Nan::Utf8String)(info[0]);
+            NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());
+            Channel* chan = ne->channels->Get(key);
+            if (chan != NULL) {
+                info.GetReturnValue().Set(chan->ListenersToArray());
+            } else {
+                Local<Array> listeners = Nan::New<Array>();
+                info.GetReturnValue().Set(listeners);
+            }
+        } else {
+            return Nan::ThrowError("Method lisyeners expects 1 argument: event name");
+        }
+    }
+
     NAN_METHOD(NativeEvents::Emit) {
         if (info.Length() < 1 || !info[0]->IsString()) {
             return Nan::ThrowError("Method emit expects at least 1 argument: event name");
@@ -85,6 +104,13 @@ namespace addon {
         }
 
         NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());
+
+        Local<Value> argv[2];
+        argv[0] = info[0];
+        argv[1] = info[1];
+        char newKey[12] = "newListener";
+        ne->channels->Exec(newKey, 2, argv);
+
         char* key = *(Nan::Utf8String)(info[0]);
         Nan::Callback *cb = new Nan::Callback(Local<Function>::Cast(info[1]));
         ne->channels->Add(key, cb, true);

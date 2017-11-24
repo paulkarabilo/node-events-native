@@ -26,6 +26,7 @@ namespace addon {
             static NAN_METHOD(Emit);
             static NAN_METHOD(On);
             static NAN_METHOD(Once);
+            static NAN_METHOD(GetListeners);
     };
 }
 #endif

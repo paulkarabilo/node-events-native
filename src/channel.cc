@@ -60,8 +60,8 @@ namespace addon {
         CallbackNode* h = head;
         CallbackNode* prev = h;
         while (h != NULL) {
-            h->cb->Call(n, args);
             if (h->once) {
+                Nan::Callback* cb = h->cb;
                 prev->next = h->next;
                 if (h == head) {
                     head = h->next;
@@ -69,10 +69,12 @@ namespace addon {
                 if (h == tail) {
                     tail = prev;
                 }
-                delete h->cb;
                 delete h;
                 h = prev->next;
+                cb->Call(n, args);
+                delete(cb);
             } else {
+                h->cb->Call(n, args);
                 prev = h;
                 h = h->next;
             }
@@ -84,12 +86,27 @@ namespace addon {
         while (head != NULL) {
             CallbackNode* h = head;
             head = head->next;
-            delete h->cb;
+            if (h->cb != NULL) {
+                delete h->cb;
+            }
             delete h;
         }
     }
 
     char* Channel::GetName() {
         return name;
+    }
+
+    Local<Array> Channel::ListenersToArray() {
+        Nan::EscapableHandleScope scope;
+        Local<Array> arr = Nan::New<Array>();
+        CallbackNode* n = head;
+        unsigned int i = 0;
+        while (n != NULL) {
+            arr->Set(i, n->cb->GetFunction());
+            n = n->next;
+            i++;
+        }
+        return scope.Escape(arr);
     }
 }

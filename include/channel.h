@@ -16,6 +16,7 @@ namespace addon {
         bool Exec(int l, Local<Value>* args);
         char* GetName();
         bool IsEmpty();
+        Local<Array> ListenersToArray();
     private:
         class CallbackNode {
             public:

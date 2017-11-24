@@ -83,7 +83,7 @@ namespace addon {
         ChannelBucket* prev = bucket;
         while (bucket != NULL) {
             Channel* chan = bucket->channel;
-            if (strcmp(chan->GetName(), name) == 0) {
+            if (strcmp(bucket->channel->GetName(), name) == 0 && !chan->IsEmpty()) {
                 if (chan->Exec(n, args)) {
                     prev->next = bucket->next;
                     if (bucket == channels[hash]) {

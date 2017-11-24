@@ -6,16 +6,6 @@ chai.should();
 chai.use(sinonChai);
 
 describe("Basic Adding Listeners", function () {
-    it("registers simple listener", function (done) {
-        var events = new Events();
-        events.addListener("test", function (a, b) {
-            a.should.equal(1);
-            b.should.equal(2);
-            done();
-        });
-        events.emit("test", 1, 2);
-    });
-
     it("should trigger newListener once added", function() {
         var newListener = sinon.spy()
         var listener = function() { return; };
@@ -43,6 +33,42 @@ describe("Basic Adding Listeners", function () {
         events.addListener("test", listener)
         events.emit("test", "a", "b");
         listener.should.have.been.calledWith("a", "b");
-    })
+    });
+
+    it("should trigger simple listener/asyn", function (done) {
+        var listener = function(a, b) {
+            a.should.equal("a");
+            b.should.equal("b");
+            done();
+        };
+        var events = new Events();
+        events.addListener("test", listener)
+        events.emit("test", "a", "b");
+    });
+
+    it("should call newListener before appending it to own list of listeners", function () {
+        var listen1 = function () {};
+        var listen2 = function () {};
+        var events = new Events();
+      
+        events.once('newListener', function() {
+          console.log("OUT");
+          events.listeners('hello').should.deep.equal([]);
+          events.once('newListener', function() {
+            console.log("IN");
+            events.listeners('hello').should.deep.equal([]);
+            console.log("IN AFTER");
+          });
+          console.log("OUT AFTER");
+          events.on('hello', listen2);
+          console.log("OUT AFTER after");
+        });
+        console.log("BEFORE");
+        events.on('hello', listen1);
+        console.log('BEFORE AFTER')
+        // The order of listeners on an event is not always the order in which the
+        // listeners were added.
+        events.listeners('hello').should.deep.equal([listen2, listen1]);
+    });
 });
 
