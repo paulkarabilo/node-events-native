@@ -14,6 +14,8 @@ namespace addon {
         ~Channels();
         void Add(char* name, Nan::Callback* cb, bool once);
         void Remove(char* name, Nan::Callback* cb);
+        void RemoveAll(char* name);
+        void RemoveAll();
         Channel* Get(char* name);
         void Exec(char* name, int n, Local<Value>* args);
         void Clear();
