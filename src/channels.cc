@@ -1,5 +1,5 @@
 #include "../include/channels.h"
-
+#include <iostream>
 namespace addon {
     Channels::Channels() {
         channels = new ChannelBucket*[CHANNELS_SIZE];
@@ -89,8 +89,12 @@ namespace addon {
                     if (bucket == channels[hash]) {
                         channels[hash] = bucket->next;
                     }
-                    delete bucket->channel;
-                    delete bucket;
+                    if (bucket->channel != NULL) {
+                        delete bucket->channel;
+                    }
+                    if (bucket != NULL) {
+                        delete bucket;
+                    }
                     bucket = prev->next;
                 } else {
                     prev = bucket;

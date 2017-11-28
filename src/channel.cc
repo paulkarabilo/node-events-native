@@ -1,4 +1,5 @@
 #include "../include/channel.h"
+#include <iostream>
 
 namespace addon {
     Channel::Channel(char* _name) : head(NULL) {
@@ -12,7 +13,9 @@ namespace addon {
 
     Channel::~Channel() {
         Clear();
-        delete[] name;
+        if (name != NULL) {
+            delete[] name;
+        }
     }
 
     void Channel::Add(Nan::Callback* cb, bool once) {
@@ -61,25 +64,24 @@ namespace addon {
         CallbackNode* prev = h;
         while (h != NULL) {
             if (h->once) {
-                Nan::Callback* cb = h->cb;
-                prev->next = h->next;
                 if (h == head) {
                     head = h->next;
                 }
                 if (h == tail) {
                     tail = prev;
                 }
+                prev->next = h->next;
+                
+                h->cb->GetFunction()->Call(Isolate::GetCurrent()->GetCurrentContext()->Global(), n, args);
                 delete h;
                 h = prev->next;
-                cb->Call(n, args);
-                delete(cb);
             } else {
-                h->cb->Call(n, args);
+                h->cb->GetFunction()->Call(Isolate::GetCurrent()->GetCurrentContext()->Global(), n, args);
                 prev = h;
                 h = h->next;
             }
         }
-        return head == NULL;
+        return false;
     }
 
     void Channel::Clear() {
@@ -89,7 +91,9 @@ namespace addon {
             if (h->cb != NULL) {
                 delete h->cb;
             }
-            delete h;
+            if (h != NULL) {
+                delete h;
+            }
         }
     }
 
