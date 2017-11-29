@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include "channels.h"
 
 using namespace v8;
 using namespace node;
@@ -17,8 +18,8 @@ namespace addon {
             //~NativeEvents();
         private:
             NativeEvents();
-            map<string, vector<Nan::Callback*> > m_channels;
-            map<string, vector<Nan::Callback*> > m_once_channels;
+            ~NativeEvents();
+            Channels* channels;
             static NAN_METHOD(New);
             static NAN_METHOD(AddListener);
             static NAN_METHOD(RemoveListener);
@@ -26,6 +27,7 @@ namespace addon {
             static NAN_METHOD(Emit);
             static NAN_METHOD(On);
             static NAN_METHOD(Once);
+            static NAN_METHOD(GetListeners);
     };
 }
 #endif

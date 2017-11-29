@@ -5,17 +5,18 @@ var NodeEvents = require('events');
 var suite = new Benchmark.Suite;
 var opts = {defer: true}
 var counter = 0;
-
+var nativeEvents = new NativeEvents();
+var nodeEvents = new NodeEvents.EventEmitter();
 suite
     .add('NativeEvents#Call', function (def) {
-            var nativeEvents = new NativeEvents();
-            nativeEvents.once("TEST", function () { def.resolve(); });
-            nativeEvents.emit("TEST");
+            counter++;
+            nativeEvents.once("TEST"+counter, function () { def.resolve(); });
+            nativeEvents.emit("TEST"+counter);
         }, opts)
     .add('NodeEvents#Call', function (def) {
-            var nodeEvents = new NodeEvents.EventEmitter();
-            nodeEvents.once("TEST", function () { def.resolve(); });
-            nodeEvents.emit("TEST");
+            counter++;
+            nodeEvents.once("TEST"+counter, function () { def.resolve(); });
+            nodeEvents.emit("TEST"+counter);
         }, opts)
     .on('cycle',  (event) =>  console.log(String(event.target)))
     .on('complete', function () { 

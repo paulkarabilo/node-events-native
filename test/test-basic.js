@@ -7,14 +7,4 @@ describe("Basics", function () {
         var events = new Events();
         events.should.exist;
     });
-
-    it("registers simple litener", function (done) {
-        var events = new Events();
-        events.addListener("test", function (a, b) {
-            a.should.equal(1);
-            b.should.equal(2);
-            done();
-        });
-        events.emit("test", 1, 2);
-    });
 });

@@ -16,6 +16,8 @@
   "devDependencies": {
     "benchmark": "^2.1.4",
     "chai": "^4.1.2",
-    "mocha": "^4.0.1"
+    "mocha": "^4.0.1",
+    "sinon": "^4.1.2",
+    "sinon-chai": "^2.14.0"
   }
 }
