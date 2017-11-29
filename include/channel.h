@@ -23,6 +23,7 @@ namespace addon {
                 Nan::Callback* cb;
                 bool once;
                 CallbackNode* next;
+                CallbackNode* prev;
         };
     private:
         char* name;

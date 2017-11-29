@@ -21,13 +21,13 @@ namespace addon {
         void Clear();
 
     private:
-        class ChannelBucket {
+        class ChannelNode {
         public:
             Channel* channel;
-            ChannelBucket* next;
+            ChannelNode* next;
         };
     private:
-        ChannelBucket** channels;
+        ChannelNode** channels;
         int Hash(char* s);
     };
 }

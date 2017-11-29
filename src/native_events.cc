@@ -18,6 +18,10 @@ namespace addon {
         channels = new Channels();
     }
 
+    NativeEvents::~NativeEvents() {
+        delete channels;
+    }
+
     NAN_METHOD(NativeEvents::New) {
         NativeEvents *ne = new NativeEvents();
         ne->Wrap(info.This());
@@ -25,8 +29,8 @@ namespace addon {
     }
 
     NAN_METHOD(NativeEvents::AddListener) {
-        if (info.Length() != 2 || !info[0]->IsString() || !info[1]->IsFunction()) {
-            return Nan::ThrowError("Method on/addListener expects 2 arguments: event name and callback");
+        if (info.Length() != 2 || !info[1]->IsFunction()) {
+            return Nan::ThrowError("\"listener\" argument must be a function");
         }
 
         NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());       
@@ -79,7 +83,7 @@ namespace addon {
                 info.GetReturnValue().Set(listeners);
             }
         } else {
-            return Nan::ThrowError("Method lisyeners expects 1 argument: event name");
+            return Nan::ThrowError("Method listeners expects 1 argument: event name");
         }
     }
 
@@ -99,8 +103,8 @@ namespace addon {
     }
 
     NAN_METHOD(NativeEvents::Once) {
-        if (info.Length() != 2 || !info[0]->IsString() || !info[1]->IsFunction()) {
-            return Nan::ThrowError("Method once expects 2 arguments: event name and callback");
+        if (info.Length() != 2 || !info[1]->IsFunction()) {
+            return Nan::ThrowError("\"listener\" argument must be a function");
         }
 
         NativeEvents* ne = Nan::ObjectWrap::Unwrap<NativeEvents>(info.Holder());

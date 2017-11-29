@@ -86,5 +86,13 @@ describe("Basic Adding Listeners", function () {
         // listeners were added.
         events.listeners('hello').should.deep.equal([listen3, listen2, listen1]);
     });
+
+    it("should throw on missing listener", function () {
+        var fn = function () {
+            var events = new Events();
+            events.on("test", null);
+        }
+        fn.should.throw('"listener" argument must be a function')
+    })
 });
 

@@ -26,6 +26,7 @@ namespace addon {
             head = tail = n;
         } else {
             tail->next = n;
+            n->prev = tail;
             tail = n;
         }
     }
@@ -45,7 +46,7 @@ namespace addon {
             delete h;
         } else {
             while (h->next != NULL) {
-                if (h->next->cb == cb) {
+                if (h->cb == cb) {
                     CallbackNode* hh = h->next;
                     if (hh == tail) {
                         tail = h;
@@ -61,23 +62,27 @@ namespace addon {
 
     bool Channel::Exec(int n, Local<Value>* args) {
         CallbackNode* h = head;
-        CallbackNode* prev = h;
         while (h != NULL) {
             if (h->once) {
                 if (h == head) {
                     head = h->next;
                 }
                 if (h == tail) {
-                    tail = prev;
+                    tail = h->prev;
                 }
-                prev->next = h->next;
-                
+                if (h->prev != NULL) {
+                    h->prev->next = h->next;
+                }
+                if (h->next != NULL) {
+                    h->next->prev = h->prev;
+                }
                 h->cb->GetFunction()->Call(Isolate::GetCurrent()->GetCurrentContext()->Global(), n, args);
+                CallbackNode* next = h->next;
+                delete h->cb;
                 delete h;
-                h = prev->next;
+                h = next;
             } else {
                 h->cb->GetFunction()->Call(Isolate::GetCurrent()->GetCurrentContext()->Global(), n, args);
-                prev = h;
                 h = h->next;
             }
         }

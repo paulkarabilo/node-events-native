@@ -2,7 +2,7 @@
 #include <iostream>
 namespace addon {
     Channels::Channels() {
-        channels = new ChannelBucket*[CHANNELS_SIZE];
+        channels = new ChannelNode*[CHANNELS_SIZE];
         memset(channels, 0, sizeof(*channels) * CHANNELS_SIZE);
     }
 
@@ -11,54 +11,54 @@ namespace addon {
     }
 
     void Channels::Add(char* name, Nan::Callback* cb, bool once) {
-        Channel* c = Get(name);
-        if (c == NULL) {
-            c = new Channel(name);
-            c->Add(cb, once);
-            ChannelBucket* b = new ChannelBucket;
-            b->channel = c;
+        Channel* chan = Get(name);
+        if (chan == NULL) {
+            chan = new Channel(name);
+            chan->Add(cb, once);
+            ChannelNode* node = new ChannelNode;
+            node->channel = chan;
             int hash = Hash(name);
-            b->next = channels[hash];
-            channels[hash] = b;
+            node->next = channels[hash];
+            channels[hash] = node;
         } else {
-            c->Add(cb, once);
+            chan->Add(cb, once);
         }
     }
 
     void Channels::Remove(char* name, Nan::Callback* cb) {
-        Channel* c = Get(name);
-        if (c != NULL) {
-            c->Remove(cb);
+        Channel* chan = Get(name);
+        if (chan != NULL) {
+            chan->Remove(cb);
         }
     }
 
     void Channels::RemoveAll(char* name) {
         int hash = Hash(name);
-        ChannelBucket* bucket = channels[hash];
-        ChannelBucket* prev = bucket;
-        while (bucket != NULL) {
-            Channel* chan = bucket->channel;
+        ChannelNode* node = channels[hash];
+        ChannelNode* prev = node;
+        while (node != NULL) {
+            Channel* chan = node->channel;
             if (strcmp(chan->GetName(), name) == 0) {
-                prev->next = bucket->next;
-                if (bucket == channels[hash]) {
-                    channels[hash] = bucket->next;
+                prev->next = node->next;
+                if (node == channels[hash]) {
+                    channels[hash] = node->next;
                 }
-                delete bucket->channel;
-                delete bucket;
-                bucket = prev->next;
+                delete node->channel;
+                delete node;
+                node = prev->next;
             } else {
-                bucket = bucket->next;
+                node = node->next;
             }
         }
     }
 
     void Channels::RemoveAll() {
         for (int i = 0; i < CHANNELS_SIZE; i++) {
-            ChannelBucket* bucket = channels[i];
-            while (bucket != NULL) {
-                delete bucket->channel;
-                delete bucket;
-                bucket = bucket->next;
+            ChannelNode* node = channels[i];
+            while (node != NULL) {
+                delete node->channel;
+                delete node;
+                node = node->next;
             }
             channels[i] = NULL;
         }
@@ -66,42 +66,42 @@ namespace addon {
 
     Channel* Channels::Get(char* name) {
         int hash = Hash(name);
-        ChannelBucket* bucket = channels[hash];
-        if (!bucket) return NULL;
-        while (bucket != NULL) {
-            if (strcmp(bucket->channel->GetName(), name) == 0) {
-                return bucket->channel;
+        ChannelNode* node = channels[hash];
+        if (!node) return NULL;
+        while (node != NULL) {
+            if (strcmp(node->channel->GetName(), name) == 0) {
+                return node->channel;
             }
-            bucket = bucket->next;
+            node = node->next;
         }
         return NULL;
     }
 
     void Channels::Exec(char* name, int n, Local<Value>* args) {
         int hash = Hash(name);
-        ChannelBucket* bucket = channels[hash];
-        ChannelBucket* prev = bucket;
-        while (bucket != NULL) {
-            Channel* chan = bucket->channel;
-            if (strcmp(bucket->channel->GetName(), name) == 0 && !chan->IsEmpty()) {
+        ChannelNode* node = channels[hash];
+        ChannelNode* prev = node;
+        while (node != NULL) {
+            Channel* chan = node->channel;
+            if (strcmp(node->channel->GetName(), name) == 0 && !chan->IsEmpty()) {
                 if (chan->Exec(n, args)) {
-                    prev->next = bucket->next;
-                    if (bucket == channels[hash]) {
-                        channels[hash] = bucket->next;
+                    prev->next = node->next;
+                    if (node == channels[hash]) {
+                        channels[hash] = node->next;
                     }
-                    if (bucket->channel != NULL) {
-                        delete bucket->channel;
+                    if (node->channel != NULL) {
+                        delete node->channel;
                     }
-                    if (bucket != NULL) {
-                        delete bucket;
+                    if (node != NULL) {
+                        delete node;
                     }
-                    bucket = prev->next;
+                    node = prev->next;
                 } else {
-                    prev = bucket;
-                    bucket = bucket->next;
+                    prev = node;
+                    node = node->next;
                 }
             } else {
-                bucket = bucket->next;
+                node = node->next;
             }
         }
     }
